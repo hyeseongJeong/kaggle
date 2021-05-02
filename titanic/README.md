@@ -2,6 +2,9 @@
 
 https://www.kaggle.com/c/titanic/code
 
+# 데이터는 여기서 다운로드 !
+
+https://www.kaggle.com/c/titanic/data
 
 
 # TO DO
