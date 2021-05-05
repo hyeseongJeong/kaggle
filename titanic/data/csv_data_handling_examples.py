@@ -55,13 +55,12 @@ def create_new_feature(data: pd.DataFrame, feature_name: str, condition: str):
 
 
 def main():
-    dataset_dir = '/Users/hyeseong/datasets/private/kaggle/titanic'
+    dataset_dir = '/Users/hyeseong/Downloads/'
     train_df = pd.read_csv(os.path.join(dataset_dir, 'train.csv'))
     test_df = pd.read_csv(os.path.join(dataset_dir, 'test.csv'))
     combine = [train_df, test_df]
 
     # 데이터셋 살펴보기
-
     # print(train_df.info())
     # print(train_df.columns.values)
     # print(train_df.describe(include='all'))
@@ -81,7 +80,7 @@ def main():
 
     # train_df.loc[train_df.Sex=='male', ['Age', 'Survived']].groupby('Age').mean().sort_index().plot(kind='bar')
     # train_df.loc[train_df.Sex=='female', ['Age', 'Survived']].groupby('Age').mean().sort_index().plot(kind='bar')
-    # show_facet_grid(train_df, 'Age', 'Sex', 'Survived')
+
     #
     # plt.show()
 
@@ -101,18 +100,18 @@ def main():
 
     # Replacing missing value
 
-    mask = train_df.Age.isnull()
+    # mask = train_df.Age.isnull()
     # print(train_df[['Title', 'Age']].groupby(['Title'], as_index=True).describe())
-    title_mean_age = train_df[['Title', 'Age']].groupby(['Title'], as_index=True).mean()
-    title_mean_age_dict = title_mean_age.to_dict()['Age']
+    # title_mean_age = train_df[['Title', 'Age']].groupby(['Title'], as_index=True).mean()
+    # title_mean_age_dict = title_mean_age.to_dict()['Age']
     # print(title_mean_age_dict)
-    train_df.loc[mask, 'Age'] = train_df.loc[mask, 'Title'].map(title_mean_age_dict)
+    # train_df.loc[mask, 'Age'] = train_df.loc[mask, 'Title'].map(title_mean_age_dict)
     # print(train_df[['PassengerId', 'Age', 'Title']].loc[mask])
 
     # print(train_df.Embarked.value_counts())
     # print(train_df.Embarked.mode().iloc[0])
-    mask = train_df.Embarked.isnull()
-    train_df.Embarked.fillna(train_df.Embarked.mode().iloc[0], inplace=True)
+    # mask = train_df.Embarked.isnull()
+    # train_df.Embarked.fillna(train_df.Embarked.mode().iloc[0], inplace=True)
     # print(train_df.Embarked.loc[mask])
     # print(train_df.isnull().sum())
 
@@ -122,22 +121,22 @@ def main():
     # print(train_df.Embarked.unique())
     # print(train_df.Sex.unique())
     # print(train_df.info())
-    train_df = pd.get_dummies(train_df, columns=['Title', 'Embarked'])
-    test_df = pd.get_dummies(test_df, columns=['Title', 'Embarked'])
+    # train_df = pd.get_dummies(train_df, columns=['Title', 'Embarked'])
+    # test_df = pd.get_dummies(test_df, columns=['Title', 'Embarked'])
 
     # Ordinal encoding (Sex)
-    Ordinal_dict_of_sex = {'female': 1, 'male': 0}
-    for _d in [train_df, test_df]:
-        _d['Sex'] = _d['Sex'].map(Ordinal_dict_of_sex).astype(int)
+    # Ordinal_dict_of_sex = {'female': 1, 'male': 0}
+    # for _d in [train_df, test_df]:
+    #     _d['Sex'] = _d['Sex'].map(Ordinal_dict_of_sex).astype(int)
 
     # feature_scaling
-    train_df_non_scaled = train_df.copy()
-    test_df_non_scaled = test_df.copy()
-    features = ['Age', 'Fare']
-    scaler = MinMaxScaler()
-    scaler.fit(train_df[features])
-    train_df[features] = scaler.transform(train_df[features])
-    test_df[features] = scaler.transform(test_df[features])
+    # train_df_non_scaled = train_df.copy()
+    # test_df_non_scaled = test_df.copy()
+    # features = ['Age', 'Fare']
+    # scaler = MinMaxScaler()
+    # scaler.fit(train_df[features])
+    # train_df[features] = scaler.transform(train_df[features])
+    # test_df[features] = scaler.transform(test_df[features])
 
     # check scaled
     # fig, axes = plt.subplots(1,2, figsize=(12,4))
@@ -152,18 +151,18 @@ def main():
     # plt.show()
 
     # Remove features
-    drop_features = ['PassengerId', 'Cabin', 'Name', 'Ticket', 'Parch', 'SibSp']
-    for _d in [train_df, test_df]:
-        _d.drop(drop_features, inplace=True, axis='columns')
-
-    train_X = train_df.drop(['Survived'], axis=1)
-    train_Y = train_df[['Survived']]
-    test_X = test_df
-
-    print(train_X.info(), '\n')
-    print(train_Y.info(), '\n')
-    print(test_X.info(), '\n')
-
+    # drop_features = ['PassengerId', 'Cabin', 'Name', 'Ticket', 'Parch', 'SibSp']
+    # for _d in [train_df, test_df]:
+    #     _d.drop(drop_features, inplace=True, axis='columns')
+    #
+    # train_X = train_df.drop(['Survived'], axis=1)
+    # train_Y = train_df[['Survived']]
+    # test_X = test_df
+    #
+    # print(train_X.info(), '\n')
+    # print(train_Y.info(), '\n')
+    # print(test_X.info(), '\n')
+    # #
 
 if __name__ == "__main__":
     main()
