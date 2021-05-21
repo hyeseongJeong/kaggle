@@ -1,5 +1,5 @@
 from unittest import TestCase
-from titanic.data.preprocess import strategy_1, strategy_2
+from titanic.data.preprocess import strategy_1, strategy_2, strategy_3
 from titanic.data.load_dataset import load_titanic_csv_dataset
 import pandas as pd
 import os
@@ -30,3 +30,22 @@ class TestData(TestCase):
         train_x, train_y, test_x = load_titanic_csv_dataset('/Users/hyeseong/datasets/private/kaggle/titanic', strategy='strategy_3')
         print(train_x.head(3))
         print(test_x.head(3))
+
+    def test_preprocess_strategy_3(self):
+        dataset_dir = '/Users/hyeseong/datasets/private/kaggle/titanic'
+        train_and_test_data = list(map(lambda x: pd.read_csv(os.path.join(dataset_dir, x)), ['train.csv', 'test.csv']))
+        # train_x, train_y, test_x = strategy_3(train_and_test_data)
+
+        train_df, _ = train_and_test_data
+        train_df.info()
+
+        import seaborn as sns
+        import matplotlib.pyplot as plt
+
+        try:
+            train_df = pd.get_dummies(train_df, columns=['Survived'], drop_first=False)
+            print(train_df.info())
+            sns.jointplot(x='Fare', y='Survived')
+            plt.show()
+        except Exception as e:
+            pass

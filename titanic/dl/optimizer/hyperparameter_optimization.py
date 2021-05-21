@@ -41,7 +41,7 @@ def grid_search_cv(dataset):
 
 def main():
     dataset_dir = '/Users/hyeseong/datasets/private/kaggle/titanic'
-    train_x, train_y, test_x = load_titanic_csv_dataset(dataset_dir, strategy='strategy_1')
+    train_x, train_y, test_x = load_titanic_csv_dataset(dataset_dir, strategy='strategy_3')
     print(train_x.head(3))
 
     grid_result, grid_results_df = grid_search_cv((train_x, train_y))

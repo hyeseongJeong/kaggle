@@ -164,6 +164,12 @@ def main():
     # print(test_X.info(), '\n')
     # #
 
+    # 계속 추가 테스트 중.
+
+    # 이산형을 범위별로 나누기
+    # df['Fare_Range'] = pd.qcut(df['Fare'], 4)
+
+
 if __name__ == "__main__":
     main()
 

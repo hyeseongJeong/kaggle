@@ -1,5 +1,5 @@
 import pandas as pd
-from sklearn.preprocessing import MinMaxScaler
+from sklearn.preprocessing import MinMaxScaler, StandardScaler, LabelEncoder
 
 
 def strategy_1(train_and_test_dataset: [pd.DataFrame, pd.DataFrame]):
@@ -107,22 +107,62 @@ def strategy_2(train_and_test_dataset: [pd.DataFrame, pd.DataFrame]):
 
 
 def strategy_3(train_and_test_dataset: [pd.DataFrame, pd.DataFrame]):
-    # TODO: 참신한걸 찾아보자,,
-    train_df, test_df = train_and_test_dataset
+    scaler = None
 
-    train_df.Age.fillna(0.00, inplace=True)
-    train_df.Age = train_df.Age.astype(int)
+    for i, _d in enumerate(train_and_test_dataset):
+        # STEP 1. CREATE NEW FEATURES
+        _d['Title'] = _d['Name'].str.extract('([A-Za-z]+)\.', expand=False)
 
-    train_df['FamilySize'] = train_df['SibSp'] + train_df['Parch']
-    train_df.loc[train_df['FamilySize']> 0, 'Travelled_alone'] = 'No'
-    train_df.loc[train_df['FamilySize']==0, 'Travelled_alone'] = 'Yes'
-    sns.factorplot('FamilySize', 'Survived', data=train_df, aspect=2.5)
-    train_df[['FamilySize', 'Survived']].groupby('FamilySize').mean().plot(kind='bar')
-    plt.show()
+        for a, b in [[['Lady', 'Countess','Capt', 'Col', 'Don', 'Dr', 'Major', 'Rev', 'Sir', 'Jonkheer', 'Dona'], 'Rare'],
+                     ['Mlle', 'Miss'],
+                     ['Ms', 'Miss'],
+                     ['Mme', 'Mrs']]:
+            _d['Title'] = _d['Title'].replace(a, b)
 
-    train_x, train_y = train_df.drop(['Survived'], axis=1), train_df['Survived']
+        _d['FamilySize'] = _d['Parch'] + _d['SibSp']
 
-    return train_x, train_y, test_df
+        # STEP 2. REPLACE NAN VALUES
+        mask = _d.Age.isnull()
+        title_mean_age = _d[['Title', 'Age']].groupby(['Title'], as_index=True).mean()
+        title_mean_age_dict = title_mean_age.to_dict()['Age']
+        _d.loc[mask, 'Age'] = _d.loc[mask, 'Title'].map(title_mean_age_dict)
+
+        _d.Embarked.fillna(_d.Embarked.mode().iloc[0], inplace=True)
+
+        _d = _d.fillna(_d['Fare'].mean())
+
+        # Step 3. Convert Continuous Features to Categorical
+        # # 방법이 여러가지라 섞어서 써봄.
+        _d['Fare_bin'] = 0
+        _d.loc[_d.Fare <= 7.91, 'Fare_bin'] = 0
+        _d.loc[(_d.Fare > 7.91) & (_d.Fare <= 14.454), 'Fare_bin'] = 1
+        _d.loc[(_d.Fare > 14.454) & (_d.Fare <= 31.0), 'Fare_bin'] = 2
+        _d.loc[(_d.Fare > 31.0) & (_d.Fare <= 512.329), 'Fare_bin'] = 3
+
+        _d['Age_bin'] = pd.cut(_d['Age'],
+                               bins=[0, 12, 20, 40, 120],
+                               labels=['Children', 'Teenage', 'Adult', 'Elder'])
+
+        _d['FamilySize_bin'] = 0
+        _d.loc[(_d.FamilySize >= 1) & (_d.FamilySize <= 3), 'FamilySize_bin'] = 1
+        _d.loc[_d.FamilySize > 3, 'FamilySize_bin'] = 2
+
+        # STEP 4. CONVERT CATEGORICAL FEATURES
+        for _f in ['Title', 'Embarked', 'Pclass', 'Sex']:
+            le = LabelEncoder()
+            _d[_f] = le.fit_transform(_d[_f])
+        _d = pd.get_dummies(_d, columns=['Sex', 'Title', 'Embarked', 'Pclass', 'Fare_bin', 'FamilySize_bin', 'Age_bin'], drop_first=False)  # add "drop_first=True" option if you want to avoid multicollinearity.
+
+        # STEP 5. DROP features
+        drop_features = ['PassengerId', 'Cabin', 'Name', 'Ticket', 'Parch', 'SibSp', 'Fare', 'FamilySize', 'Age']
+        _d.drop(drop_features, inplace=True, axis='columns')
+
+        train_and_test_dataset[i] = _d
+
+    train_xy, test_x = train_and_test_dataset
+    train_x, train_y = train_xy.drop(['Survived'], axis=1), train_xy['Survived']
+
+    return train_x, train_y, test_x
 
 
 if __name__ == "__main__":
@@ -138,4 +178,5 @@ if __name__ == "__main__":
     pd.set_option('display.width', None)
 
     train_and_test_data = list(map(lambda x: pd.read_csv(os.path.join('/Users/hyeseong/datasets/private/kaggle/titanic', x)), ['train.csv', 'test.csv']))
-    strategy_3(train_and_test_data)
+    train_x, train_y, test_x = strategy_3(train_and_test_data)
+    print(train_x.head())
