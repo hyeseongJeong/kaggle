@@ -1,0 +1,8 @@
+dataset_path: /Users/hyeseong/datasets/public/kaggle/dogs-vs-cats
+pretrained_model_path:
+saved_model_path: /tmp/saved_model
+img_height: 224
+img_width: 224
+batch_size: 10
+class_num: 2
+epochs: 500
